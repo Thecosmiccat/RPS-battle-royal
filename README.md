@@ -12,9 +12,11 @@ My first time working with java and html
 - Can easily feed your gambling obsession
 
 # Running
-just open the html file using a web browser
+Go to the website: https://thecosmiccat.github.io/RPS-battle-royal/
 
-Or open it using live server in vs code
+Or open the index.html file in your browser
+
+
 
 # How To Use
 - chose your bet for which team will win
