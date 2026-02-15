@@ -12,11 +12,12 @@ My first time working with java and html
 - Can easily feed your gambling obsession
 
 # Running
-
-Right now you need pygame for it to run so please wait until a exe is made
+just open the html file using a web browser
 
 # How To Use
-just watch
+- chose your bet for which team will win
+- after you will get coins if your prediction was right
+- you can stop pause using the buttons on the screen
 
 # Possible Future Additions
 - Settings screen to change number of weapons, weapon speed, weapon size, etc.
