@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    background: #111;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#game-container {
+    width: 520px;
+    margin: auto;
+}
+
+canvas {
+    background: #f5f5f5;
+    border-radius: 12px;
+    display: block;
+    margin: auto;
+}
+
+button {
+    margin: 8px;
+    padding: 10px 18px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+<div id="game-container">
+    <h1>Rock Paper Scissors Royale</h1>
+
+    <canvas id="myCanvas" width="500" height="500"></canvas>
+
+    <div>
+        <button onclick="start()">Start</button>
+        <button onclick="pause()">Pause</button>
+        <button onclick="Restart()">Restart</button>
+    </div>
+    <div>
+        <button onclick="placeBet('rock')">Bet Rock</button>
+        <button onclick="placeBet('paper')">Bet Paper</button>
+        <button onclick="placeBet('scissors')">Bet Scissors</button>
+    </div>
+
+    <p id="coins"></p>
+
+
+    <p id="status"></p>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
