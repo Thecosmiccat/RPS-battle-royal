@@ -14,6 +14,8 @@ My first time working with java and html
 # Running
 just open the html file using a web browser
 
+Or open it using live server in vs code
+
 # How To Use
 - chose your bet for which team will win
 - after you will get coins if your prediction was right
