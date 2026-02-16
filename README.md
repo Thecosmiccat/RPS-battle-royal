@@ -25,3 +25,6 @@ Or open the index.html file in your browser
 
 # Possible Future Additions
 - Sound!(5% chance)
+- Fix betting system
+- progression
+- Make the UI look better
