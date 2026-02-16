@@ -2,44 +2,144 @@
 <html>
 <head>
 <style>
+* {
+    box-sizing: border-box;
+}
+
 body {
-    background: #111;
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
+    background:
+        radial-gradient(1200px 500px at 20% -20%, #2a3a6b, transparent 70%),
+        radial-gradient(900px 500px at 100% 0%, #4f2436, transparent 70%),
+        #0a0d18;
+    color: #eef2ff;
+    font-family: "Trebuchet MS", "Segoe UI", sans-serif;
     margin: 0;
-    padding: 20px 10px;
+    min-height: 100vh;
+    padding: 24px 12px;
 }
 
 #game-container {
-    width: min(95vw, 760px);
+    width: min(96vw, 960px);
     margin: auto;
+    background: rgba(8, 12, 28, 0.84);
+    border: 1px solid rgba(150, 170, 255, 0.24);
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+    padding: 16px;
+}
+
+h1 {
+    margin: 8px 0 2px;
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    letter-spacing: 0.5px;
+}
+
+#subtitle {
+    margin: 0 0 14px;
+    color: #b4c1ff;
+    font-size: 0.95rem;
+}
+
+#stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.stat-card {
+    text-align: left;
+    border: 1px solid rgba(160, 179, 255, 0.24);
+    background: linear-gradient(140deg, rgba(31, 40, 72, 0.8), rgba(16, 22, 44, 0.88));
+    border-radius: 12px;
+    padding: 8px 10px;
+}
+
+.stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.9px;
+    color: #a8b6ef;
+}
+
+.stat-value {
+    margin-top: 4px;
+    font-size: 1rem;
+    font-weight: 700;
 }
 
 canvas {
-    background: #f5f5f5;
+    background: linear-gradient(180deg, #f8faff, #dce3f7);
     border-radius: 12px;
+    border: 2px solid rgba(195, 213, 255, 0.8);
     display: block;
-    margin: auto;
+    margin: 10px auto 12px;
     max-width: 100%;
     height: auto;
 }
 
 button {
-    margin: 8px;
-    padding: 10px 18px;
-    font-size: 16px;
+    margin: 6px;
+    padding: 9px 14px;
+    font-size: 14px;
+    font-weight: 700;
     border-radius: 8px;
     border: none;
     cursor: pointer;
+    color: #f4f7ff;
+    transition: transform 120ms ease, filter 120ms ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+}
+
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+    filter: none;
+}
+
+.control-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #2d8f55, #246a41);
+}
+
+.warn-btn {
+    background: linear-gradient(135deg, #9f5b21, #7f4618);
+}
+
+.neutral-btn {
+    background: linear-gradient(135deg, #42528a, #323f6b);
+}
+
+.danger-btn {
+    background: linear-gradient(135deg, #8a3346, #6d2737);
+}
+
+.bet-btn {
+    background: linear-gradient(135deg, #5647aa, #403682);
+}
+
+.full-btn {
+    width: 100%;
+    margin: 8px 0 0;
 }
 
 #settings-panel {
-    background: #1a1a1a;
+    background: linear-gradient(140deg, rgba(26, 33, 63, 0.86), rgba(16, 21, 39, 0.9));
+    border: 1px solid rgba(152, 169, 238, 0.24);
     border-radius: 10px;
-    padding: 12px;
+    padding: 12px 12px 10px;
     margin: 10px auto 14px;
-    max-width: 700px;
+    max-width: 860px;
 }
 
 #settings-grid {
@@ -51,7 +151,7 @@ button {
 
 #settings-grid label {
     font-size: 13px;
-    color: #d9d9d9;
+    color: #d7defb;
     display: block;
     margin-bottom: 4px;
 }
@@ -60,10 +160,17 @@ button {
     width: 100%;
     box-sizing: border-box;
     border-radius: 6px;
-    border: 1px solid #444;
-    background: #111;
-    color: white;
+    border: 1px solid #556097;
+    background: #0f1531;
+    color: #eef2ff;
     padding: 7px;
+}
+
+#status {
+    margin: 8px 0 4px;
+    min-height: 24px;
+    color: #fdeec4;
+    font-weight: 700;
 }
 
 .hidden {
@@ -75,14 +182,30 @@ button {
 <body>
 <div id="game-container">
     <h1>Rock Paper Scissors Royale</h1>
+    <p id="subtitle">Pick your team before starting, then watch the battle unfold.</p>
+
+    <div id="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Coins</div>
+            <div class="stat-value" id="coins"></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Teams Alive</div>
+            <div class="stat-value" id="team-counts"></div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Progression</div>
+            <div class="stat-value" id="progression"></div>
+        </div>
+    </div>
 
     <canvas id="myCanvas" width="500" height="500"></canvas>
 
-    <div>
-        <button onclick="start()">Start</button>
-        <button onclick="pause()">Pause</button>
-        <button onclick="Restart()">Restart</button>
-        <button onclick="toggleSettings()">Settings</button>
+    <div class="control-row">
+        <button class="primary-btn" onclick="start()">Start</button>
+        <button class="warn-btn" onclick="pause()">Pause</button>
+        <button class="neutral-btn" onclick="Restart()">Restart</button>
+        <button class="danger-btn" onclick="toggleSettings()">Settings</button>
     </div>
 
     <div id="settings-panel" class="hidden">
@@ -108,16 +231,14 @@ button {
                 <input id="canvasHeight" type="number" min="300" max="900" value="500">
             </div>
         </div>
-        <button onclick="applySettings()">Apply Settings</button>
+        <button class="full-btn neutral-btn" onclick="applySettings()">Apply Settings</button>
     </div>
-    <div>
-        <button onclick="placeBet('rock')">Bet Rock</button>
-        <button onclick="placeBet('paper')">Bet Paper</button>
-        <button onclick="placeBet('scissors')">Bet Scissors</button>
+    <div class="control-row">
+        <button id="bet-rock" class="bet-btn" onclick="placeBet('rock')">Bet Rock</button>
+        <button id="bet-paper" class="bet-btn" onclick="placeBet('paper')">Bet Paper</button>
+        <button id="bet-scissors" class="bet-btn" onclick="placeBet('scissors')">Bet Scissors</button>
     </div>
 
-    <p id="coins"></p>
-    <p id="team-counts"></p>
     <p id="status"></p>
 </div>
 
