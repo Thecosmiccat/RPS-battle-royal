@@ -24,7 +24,4 @@ Or open the index.html file in your browser
 - you can stop pause using the buttons on the screen
 
 # Possible Future Additions
-- Settings screen to change number of weapons, weapon speed, weapon size, etc.
-- Resizable window
 - Sound!(5% chance)
-- Display weapon counts for each team
