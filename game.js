@@ -7,6 +7,16 @@ let currentBet = null;
 let betAmount = 10;
 let roundActive = false;
 let run = true;
+let preRoundBettingOpen = true;
+
+const progression = {
+    level: 1,
+    xp: 0,
+    xpToNext: 100,
+    correctBets: 0,
+    streak: 0,
+    roundsPlayed: 0
+};
 
 const settings = {
     weaponsPerTeam: 35,
@@ -47,12 +57,57 @@ function drawBorder() {
 }
 
 function placeBet(choice) {
-    if (roundActive) return;
-    if (coins < betAmount) return;
+    if (!preRoundBettingOpen) {
+        document.getElementById("status").innerText = "Betting is locked. Wait for this round to end.";
+        return;
+    }
+    if (coins < betAmount) {
+        document.getElementById("status").innerText = "Not enough coins to place this bet.";
+        return;
+    }
 
     currentBet = choice;
     document.getElementById("status").innerText =
         `Bet placed on ${choice.toUpperCase()}`;
+    updateUI();
+}
+
+function updateBetButtons() {
+    const betButtons = {
+        rock: document.getElementById("bet-rock"),
+        paper: document.getElementById("bet-paper"),
+        scissors: document.getElementById("bet-scissors")
+    };
+
+    Object.keys(betButtons).forEach((key) => {
+        const button = betButtons[key];
+        button.disabled = !preRoundBettingOpen;
+        button.style.outline = currentBet === key ? "2px solid #f6dc79" : "none";
+        button.style.outlineOffset = "1px";
+    });
+}
+
+function getRewardMultiplier() {
+    return 1 + (progression.level - 1) * 0.2;
+}
+
+function applyProgression(didBetWin) {
+    progression.roundsPlayed += 1;
+    progression.xp += didBetWin ? 40 : 20;
+
+    if (didBetWin) {
+        progression.correctBets += 1;
+        progression.streak += 1;
+    } else {
+        progression.streak = 0;
+    }
+
+    while (progression.xp >= progression.xpToNext) {
+        progression.xp -= progression.xpToNext;
+        progression.level += 1;
+        progression.xpToNext = Math.floor(progression.xpToNext * 1.3);
+        document.getElementById("status").innerText = `Level up! You are now level ${progression.level}.`;
+    }
 }
 
 function resolveBet(winnerElement) {
@@ -63,15 +118,19 @@ function resolveBet(winnerElement) {
         winnerElement instanceof Paper ? "paper" :
         "scissors";
 
-    if (winnerType === currentBet) {
-        coins += betAmount * 2;
-        document.getElementById("status").innerText = "YOU WON THE BET!";
+    const didBetWin = winnerType === currentBet;
+    if (didBetWin) {
+        const payout = Math.floor(betAmount * (2 * getRewardMultiplier()));
+        coins += payout;
+        document.getElementById("status").innerText = `You won +${payout} coins!`;
     } else {
         coins -= betAmount;
-        document.getElementById("status").innerText = "You lost the bet.";
+        document.getElementById("status").innerText = `You lost ${betAmount} coins.`;
     }
 
+    applyProgression(didBetWin);
     currentBet = null;
+    preRoundBettingOpen = true;
     updateUI();
 }
 
@@ -80,6 +139,9 @@ function updateUI() {
     document.getElementById("coins").innerText = `Coins: ${coins}`;
     document.getElementById("team-counts").innerText =
         `Rock: ${rocks.length} | Paper: ${papers.length} | Scissors: ${scissors.length}`;
+    document.getElementById("progression").innerText =
+        `Lvl ${progression.level} | XP ${progression.xp}/${progression.xpToNext} | Streak ${progression.streak}`;
+    updateBetButtons();
 }
 
 function createElements(quantity) {
@@ -139,7 +201,7 @@ function applySettings() {
     syncSettingsInputs();
     resizeCanvasToWindow();
     Restart();
-    document.getElementById("status").innerText = "Settings applied.";
+    document.getElementById("status").innerText = "Settings applied. Pick a bet and press Start.";
 }
 
 function drawElements() {
@@ -299,11 +361,19 @@ function checkWin() {
 }
 
 function start() {
+    if (roundActive) return;
+    if (!currentBet) {
+        document.getElementById("status").innerText = "Choose your bet before starting.";
+        return;
+    }
+
     scissors = [];
     papers = [];
     rocks = [];
     createElements(settings.weaponsPerTeam);
     roundActive = true;
+    preRoundBettingOpen = false;
+    document.getElementById("status").innerText = "Round started. Betting is locked.";
     updateUI();
 }
 
@@ -316,7 +386,10 @@ function Restart() {
     papers = [];
     rocks = [];
     roundActive = false;
-    start();
+    preRoundBettingOpen = true;
+    currentBet = null;
+    document.getElementById("status").innerText = "Round reset. Choose your bet before starting.";
+    updateUI();
 }
 
 window.addEventListener("resize", resizeCanvasToWindow);
@@ -327,6 +400,7 @@ sanitizeSettings();
 syncSettingsInputs();
 resizeCanvasToWindow();
 updateUI();
+document.getElementById("status").innerText = "Choose your bet before starting.";
 
 function animate() {
     if (!run) return;
@@ -337,12 +411,15 @@ function animate() {
     drawElements();
     drawBorder();
 
-    checkElementsCollisions();
-    let winner = checkWin();
-    if (winner) {
-        resolveBet(winner);
-        drawWinner(winner);
-        roundActive = false;
+    if (roundActive) {
+        checkElementsCollisions();
+        let winner = checkWin();
+        if (winner) {
+            resolveBet(winner);
+            drawWinner(winner);
+            roundActive = false;
+            document.getElementById("status").innerText += " Choose your next bet, then press Start.";
+        }
     }
     updateUI();
 }
